@@ -215,7 +215,7 @@ gen_ASR_MAF <- function(myAln,myMCC,myASR,myMAF,normName,patientID=NULL,iq_or_fa
   #if they specified a patientID, we include it here
   if(!is.null(patientID)){
     Patient_ID<-rep(x = patientID,nrow(newMAF))
-    name(Patient_ID)<-"Patient_ID"
+    names(Patient_ID)<-"Patient_ID"
     newMAF<-cbind(Patient_ID,newMAF)
   }
   #if they want the result written to file, we do so here.
