@@ -1,12 +1,3 @@
-#myAln <- "~/c04_demo/alignment_c04.fasta"
-#myMCC <- "~/c04_demo/tree.newick.txt"
-#myASR <- "~/c04_demo/seq.joint.txt" #fastml with -qf option
-#myMAF <- "~/c04_demo/anno_c04.tsv.txt"
-#normName <- "c04_N6"
-#patientID <- "c04"
-
-
-
 ##Function: gen_ASR_MAF
 ###Purpose: Return to the user a MAF with the mutations from a MAF mapped to their first occurance, branchwise.
 ###Mandatory Input
@@ -41,11 +32,11 @@ gen_ASR_MAF <- function(myAln,myMCC,myASR,myMAF,normName,patientID=NULL,iq_or_fa
   #Used to print if there are any terminal leaf ambiguities and, if so, how many there are!
   leafAmbigFlag<-F
   leafAmbigCount<-0
-    
+  
   #read in the original alignment, remove any blank lines
   origAln <- readLines(myAln)
   origAln <- origAln[nchar(origAln) > 1]
-    
+  
   ###Prep the ASR###
   #if the input ASR is iq tree  
   if (iq_or_fast == "iq") {
@@ -173,6 +164,7 @@ gen_ASR_MAF <- function(myAln,myMCC,myASR,myMAF,normName,patientID=NULL,iq_or_fa
           leafAmbigCount<-leafAmbigCount+1
         }
       }
+      
       if (seq1 == seq2) { #if they are the same, no mutation/change happened. Move to the next edge/branch!
         next()
       } #not the first time it has changed or no change
@@ -184,7 +176,7 @@ gen_ASR_MAF <- function(myAln,myMCC,myASR,myMAF,normName,patientID=NULL,iq_or_fa
       #warn the user if the MAF and the sequence don't match. This could be legit
       #think A->T->C
       #so we use the alignment one, but note it for the user.
-      if (thisAlt != seq2) {
+      if ((thisAlt != seq2)) {
         print(
           "MAF alt and aln seq don't match. This could be due to 2 sequential mutations or misaligned MAF-to-aln"
         )
@@ -198,10 +190,17 @@ gen_ASR_MAF <- function(myAln,myMCC,myASR,myMAF,normName,patientID=NULL,iq_or_fa
       }
       #if you made it this far, this is the first time the mutation was seen on the tree
       #add this result to the newMAF data structure, preserving the origMAF ordering.
-      newMAF[i, ] <-
-        c(paste0("B", j),thisChr,thisStart,thisRef,seq2,lookupVec[thisN2],j,
+      #newMAF[i, ] <-
+      #  c(paste0("B", j),thisChr,thisStart,thisRef,seq2,lookupVec[thisN2],j,
           paste0(lookupVec[thisN1], "-", lookupVec[thisN2])
-        )
+      #  )
+      newRow<-c(paste0("B", j),thisChr,thisStart,seq1,seq2,lookupVec[thisN2],j,
+                paste0(lookupVec[thisN1], "-", lookupVec[thisN2]))
+      if(is.na(newMAF$Chromosome[1])){
+        newMAF[1,]<-newRow
+      } else{
+        newMAF<-rbind(newMAF,newRow)
+      }
     }
   }
   #report back to the user the number of leaf ambiguities
